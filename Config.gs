@@ -21,10 +21,10 @@
 // Configuration
 // =============
 
-var SCRIPT_NAME = "GAS Framework"
-var SCRIPT_VERSION = "v0.dev"
+var SCRIPT_NAME = "Google Apps Script Libraries"
+var SCRIPT_VERSION = "v1.0"
 
-var PRODUCTION_VERSION_ = false
+var PRODUCTION_VERSION_ = true
 
 // Log Library
 // -----------
