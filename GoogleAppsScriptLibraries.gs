@@ -1,4 +1,4 @@
-// JSHint - TODO
+// JSHint - 20200116
 /* jshint asi: true */
 
 (function() {"use strict"})()
@@ -137,13 +137,17 @@ function onRefresh_() {
         config.columns.forEach(function(column) {        
           var inputOffset = column.offset
           var nextOutputColumnName = column.map
+          
+          if (nextOutputColumnName === '') {
+            return
+          }
+          
           var nextInputValue = row[inputOffset]
           
           if (nextOutputColumnName !== 'Name') { 
             output[libraryName][nextOutputColumnName] = nextInputValue      
           }        
         })
-
       })
 
       // Private Functions
@@ -154,7 +158,7 @@ function onRefresh_() {
         var nameOffset = null
         
         config.columns.some(function(column) {
-          if (column.name === 'Name') {
+          if (column.name === 'Name' || column.name === 'name') {
             nameOffset = column.offset
             return true
           }
@@ -182,6 +186,10 @@ function onRefresh_() {
     var maxOffset = 0
     
     for (var library in output) {
+    
+      if (!output.hasOwnProperty(library)) {
+        continue
+      }
 
       var nextRow = [library] // Set the name
 
@@ -206,6 +214,8 @@ function onRefresh_() {
       
     } // for each library
     
+    Log_.fine('maxOffset: ' + maxOffset)
+    
     // Replace any null values - use "for" as some indexes may be empty
     data.forEach(function(row, rowIndex) {
       for (var columnIndex = 0; columnIndex <= maxOffset; columnIndex++) {
@@ -216,8 +226,8 @@ function onRefresh_() {
       }
     })
     
-    Log_.fine('data: %s', data)
-    masterSheet.getRange(2, 1, masterSheet.getLastRow(), masterSheet.getLastColumn()).clearContent()
+    Log_.finest('data: %s', data)
+    masterSheet.getRange(2, 1, masterSheet.getLastRow(), OFFSETS_.LAST_OFFSET + 1).clearContent()
     masterSheet.getRange(2, 1, data.length, maxOffset + 1).setValues(data) 
 
   } // onRefresh_.writeLibraryList()

@@ -16,7 +16,7 @@ function test_init() {
 }
 
 function test_misc() {
-  // ...
+  var a = SpreadsheetApp.getActive().getSheetByName('Misc Libs 1').getRange('F2')
 }
 
 function test_onRefresh() {
