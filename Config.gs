@@ -22,7 +22,7 @@
 // =============
 
 var SCRIPT_NAME = "Google Apps Script Libraries"
-var SCRIPT_VERSION = "v1.0"
+var SCRIPT_VERSION = "v1.1"
 
 var PRODUCTION_VERSION_ = true
 
@@ -169,6 +169,11 @@ var SHEETS_ = [
         name: 'Key',
         map: 'ID',
         offset: 2,  
+      },
+      {
+        name: 'GitHub',
+        map: 'Source Control',
+        offset: 3,  
       }
     ],
   },
