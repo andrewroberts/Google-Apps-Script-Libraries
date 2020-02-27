@@ -16,7 +16,9 @@ function test_init() {
 }
 
 function test_misc() {
-  var a = SpreadsheetApp.getActive().getSheetByName('Misc Libs 1').getRange('F2')
+  var a = ['b', 'c', 'd']
+  var b = a.join()
+  debugger
 }
 
 function test_onRefresh() {
