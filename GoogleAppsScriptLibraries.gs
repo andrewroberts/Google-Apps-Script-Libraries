@@ -71,6 +71,7 @@ function eventHandler_(config, args) {
     Log_ = BBLog.getLog({
       level:                DEBUG_LOG_LEVEL_, 
       displayFunctionNames: DEBUG_LOG_DISPLAY_FUNCTION_NAMES_,
+      sheetId:              TEST_SHEET_ID_
     })
     
     Log_.info('Handling ' + config[0] + ' from ' + (userEmail || 'unknown email') + ' (' + SCRIPT_NAME + ' ' + SCRIPT_VERSION + ')')
@@ -101,10 +102,10 @@ function eventHandler_(config, args) {
 
 function onRefresh_() {
 
-  var spreadsheet = SpreadsheetApp.getActive()
-  var masterSheet = spreadsheet.getSheetByName('Libraries')
+  var spreadsheet = Utils_.getSpreadsheet() 
+  var masterSheet = spreadsheet.getSheetByName(MASTER_SHEET_NAME_)
   var output = getMasterLibraryList()
-  writeLibraryList()
+  writeLibraryList(output)
   return
   
   // Private Functions
@@ -112,6 +113,22 @@ function onRefresh_() {
   
   function getMasterLibraryList() {  
   
+    /*
+    [Library 1 Name] : {
+      [Key 1]: [Value 1]
+      [Key 1]: [Value 1]
+      .
+      .
+      .
+    },
+    [Library 2 Name] : {
+      
+    },
+    .
+    .
+    .
+    
+    */
     var output = {}
     
     SHEETS_.forEach(function(config) {
@@ -175,12 +192,57 @@ function onRefresh_() {
       Log_.finest('output: %s', output)
       
     }) // for each sheet
-
-    return output
+    
+    return addJSONLists(output)
+    
+    // Private Functions
+    // -----------------
+    
+    /** 
+     * Map the next library object key stored in the JSON to the 
+     * appropriate "master" list key
+     */
+    
+    function addJSONLists(output) {
+    
+      JSON_.forEach(function(config) {
+      
+        var url = config.url
+        var jSONkeys = config.keys
+        var json = JSON.parse(UrlFetchApp.fetch(url).getContentText())
+        
+        json.forEach(function(jSONlibrary) {
+        
+          var libraryName = jSONlibrary[jSONkeys[0].name]
+          
+          if (output[libraryName] === undefined) {
+            output[libraryName] = {}
+          }
+          
+          for (var key in jSONkeys) {
+          
+            if (!jSONkeys.hasOwnProperty(key)) {
+              continue
+            }
+            
+            var nextJSONKey = jSONkeys[key] 
+            var nextValue = jSONlibrary[nextJSONKey.name]
+            
+            if (nextValue instanceof Array) {
+              nextValue = nextValue.join()
+            }
+            
+            output[libraryName][nextJSONKey.map] = nextValue
+          }
+        })
+      })
+      return output
+      
+    } // // onRefresh_.getMasterLibraryList().addJSONLists()
     
   } // onRefresh_.getMasterLibraryList()
   
-  function writeLibraryList() {  
+  function writeLibraryList(output) {  
   
     var data = []
     var maxOffset = 0
@@ -191,7 +253,7 @@ function onRefresh_() {
         continue
       }
 
-      var nextRow = [library] // Set the name
+      var nextRow = [library] // Initialise the row with the name
 
       if (!output.hasOwnProperty(library)) {
         continue
@@ -205,9 +267,9 @@ function onRefresh_() {
           continue
         }
       
-        var nextOffset = OFFSETS_[columnName]        
-        maxOffset = (nextOffset > maxOffset) ? nextOffset : maxOffset
-        nextRow[nextOffset] = nextLibrary[columnName]      
+        var offsetIntoMasterList = OFFSETS_[columnName]        
+        maxOffset = (offsetIntoMasterList > maxOffset) ? offsetIntoMasterList : maxOffset
+        nextRow[offsetIntoMasterList] = nextLibrary[columnName]      
       }
       
       data.push(nextRow)
@@ -226,9 +288,24 @@ function onRefresh_() {
       }
     })
     
+    data = data.sort(sortFunction)
     Log_.finest('data: %s', data)
     masterSheet.getRange(2, 1, masterSheet.getLastRow(), OFFSETS_.LAST_OFFSET + 1).clearContent()
     masterSheet.getRange(2, 1, data.length, maxOffset + 1).setValues(data) 
+    return
+    
+    // Private Functions
+    // -----------------
+          
+    function sortFunction(a, b) {
+      var la = a[0].toLowerCase()
+      var lb = b[0].toLowerCase()
+      if (la === lb) {
+          return 0;
+      } else {
+          return (la < lb) ? -1 : 1;
+      }      
+    } // onRefresh_.writeLibraryList.sortFunction()
 
   } // onRefresh_.writeLibraryList()
   
