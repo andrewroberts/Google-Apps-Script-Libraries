@@ -22,7 +22,7 @@
 // =============
 
 var SCRIPT_NAME = "Google Apps Script Libraries"
-var SCRIPT_VERSION = "v1.2"
+var SCRIPT_VERSION = "v1.3"
 
 var PRODUCTION_VERSION_ = true
 
@@ -101,6 +101,39 @@ var JSON_ = [
 
 var SHEETS_ = [
   {
+    name: 'Form responses 1', 
+    columns: [
+      {
+        name: 'Timestamp',
+        map: 'Created',
+        offset: 0,  
+      },{
+        name: 'Library Name',
+        map: 'Name',
+        offset: 1
+      },{
+        name: 'Description',
+        map: 'Description',
+        offset: 2,  
+      },{
+        name: 'ID',
+        map: 'ID',
+        offset: 3,  
+      },{
+        name: 'Source Control',
+        map: 'Source Control',
+        offset: 6,  
+      },{
+        name: 'Authors',
+        map: 'Authors',
+        offset: 7,  
+      },{
+        name: 'Tags',
+        map: 'Tags',
+        offset: 8,  
+      }
+    ],
+  },{
     name: 'mcpher.com', 
     columns: [
       {

@@ -175,7 +175,7 @@ function onRefresh_() {
         var nameOffset = null
         
         config.columns.some(function(column) {
-          if (column.name === 'Name' || column.name === 'name') {
+          if (column.name === 'Name' || column.name === 'name' || column.name === 'Library Name') {
             nameOffset = column.offset
             return true
           }
